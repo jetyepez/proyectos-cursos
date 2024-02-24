@@ -39,7 +39,7 @@ app.get("/empleados", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err);
-        res.status(500).send("Error al registrar el empleado");
+        res.status(500).send("Error al registrar el empleado prueba");
       } else {
           res.send(result);
       
