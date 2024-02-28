@@ -16,7 +16,7 @@ app.post("/create", (req, res) => {
   const Nombre = req.body.Nombre;
   const Edad = req.body.Edad;
   const Pais = req.body.Pais;
-  const Cargo = req.body.cargo;
+  const Cargo = req.body.Cargo;
   const Anio = req.body.Anio;
 
   db.query(
@@ -25,9 +25,9 @@ app.post("/create", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err);
-        res.status(500).send("Error al registrar el empleado");
+        res.send("Error al registrar el empleado");
       } else {
-        res.status(200).send("Empleado registrado con éxito");
+        res.send("Empleado registrado con éxito");
       }
     }
   );
@@ -39,7 +39,7 @@ app.get("/empleados", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err);
-        res.status(500).send("Error al registrar el empleado prueba");
+        res.send("Error al registrar el empleado prueba");
       } else {
           res.send(result);
       
@@ -48,6 +48,25 @@ app.get("/empleados", (req, res) => {
   );
 });
 
+app.put("/update", (req, res) => {
+  const  id= req.body.id;
+  const Nombre = req.body.Nombre;
+  const Edad = req.body.Edad;
+  const Pais = req.body.Pais;
+  const Cargo = req.body.Cargo;
+  const Anio = req.body.Anio;
+
+  db.query("UPDATE empleados SET Nombre=?, Edad=?, Pais=?, Cargo=?, Anio=? WHERE id=?",
+    [Nombre, parseInt(Edad), Pais, Cargo, parseInt(Anio), id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
 app.listen(3001, () => {
   console.log("Corriendo en el puerto 3001");
 });

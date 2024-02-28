@@ -9,7 +9,9 @@ function App() {
   const [Pais, setPais] = useState("");
   const [Cargo, setCargo] = useState("");
   const [Anio, setAnio] = useState(0);
-  const [EmpleadosList,setEmpleados] = useState([]);
+  const [id, setid] = useState(0);
+  const [editar, seteditar] = useState(false);
+  const [EmpleadosList, setEmpleados] = useState([]);
 
   const add = async () => {
     Axios.post("http://localhost:3001/create", {
@@ -20,25 +22,37 @@ function App() {
       Anio: Anio,
     })
       .then(() => {
-         getEmpleados();
+        getEmpleados();
         alert("Empleado Registrado");
       })
       .catch((error) => {
         console.error("Error en la solicitud:", error);
       });
   };
-
-  const getEmpleados = async () => {
-    Axios.get("http://localhost:3001/empleados").then((response) => {
-       setEmpleados(response.data);
-    });
+  const editarempleado = (val) => {
+    seteditar(true);
+    setNombre(val.Nombre);
+    setEdad(val.Edad);
+    setCargo(val.Cargo);
+    setPais(val.Pais);
+    setAnio(val.Anio);
+    setid(val.id);
   };
-    getEmpleados();
+  let cont = 0;
+  const getEmpleados = async () => {
+    if (cont < 1) {
+      Axios.get("http://localhost:3001/empleados").then((response) => {
+        setEmpleados(response.data);
+      });
+      cont++;
+    }
+  };
+  getEmpleados();
 
   return (
     <div className="container">
       <div className="caNamerd text-center">
-        <div className="card-header">Gestión de empleados</div>
+        <div className="card-header">Gestión de Empleados</div>
         <div className="card-body">
           <div className="input-group mb-3">
             <span className="input-group-text" id="basic-addon1">
@@ -50,6 +64,7 @@ function App() {
                 setNombre(event.target.value);
               }}
               className="form-control"
+              value={Nombre}
               placeholder="ingrese un nombre"
               aria-label="Username"
               aria-describedby="basic-addon1"
@@ -58,10 +73,11 @@ function App() {
 
           <div className="input-group mb-3">
             <span className="input-group-text" id="basic-addon1">
-              Edad
+              Edad:
             </span>
             <input
               type="number"
+              value={Edad}
               onChange={(event) => {
                 setEdad(event.target.value);
               }}
@@ -78,6 +94,7 @@ function App() {
             </span>
             <input
               type="text"
+              value={Pais}
               onChange={(event) => {
                 setPais(event.target.value);
               }}
@@ -90,15 +107,16 @@ function App() {
 
           <div className="input-group mb-3">
             <span className="input-group-text" id="basic-addon1">
-              Cargo:
+              cargo:
             </span>
             <input
               type="text"
+              value={Cargo}
               onChange={(event) => {
                 setCargo(event.target.value);
               }}
               className="form-control"
-              placeholder="ingrese Cargo"
+              placeholder="ingrese un Cargo"
               aria-label="Username"
               aria-describedby="basic-addon1"
             />
@@ -110,6 +128,7 @@ function App() {
             </span>
             <input
               type="number"
+              value={Anio}
               onChange={(event) => {
                 setAnio(event.target.value);
               }}
@@ -125,18 +144,19 @@ function App() {
             Registrar
           </button>
         </div>
-      </div>{" "}
+      </div>
       <table className="table table-striped">
-        {" "}
         <thead>
-          {" "}
           <tr>
-            {" "}
-            <th scope="col">#</th> <th scope="col">Nombre</th>{" "}
-            <th scope="col">Edad</th> <th scope="col">Pais</th>{" "}
-            <th scope="col">Cargo</th> <th scope="col">Experiencia</th>{" "}
-          </tr>{" "}
-        </thead>{" "}
+            <th scope="col">#</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Edad</th>
+            <th scope="col">Pais</th>
+            <th scope="col">Cargo</th>
+            <th scope="col">Experiencia</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
         <tbody>
           {EmpleadosList.map((val, key) => {
             return (
@@ -147,6 +167,26 @@ function App() {
                 <td>{val.Pais}</td>
                 <td>{val.Cargo}</td>
                 <td>{val.Anio}</td>
+                <td>
+                  <div
+                    className="btn-group"
+                    role="group"
+                    aria-label="Basic example"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        editarempleado(val);
+                      }}
+                      className="btn btn-info"
+                    >
+                      Editar
+                    </button>
+                    <button type="button" className="btn btn-danger">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
               </tr>
             );
           })}
