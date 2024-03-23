@@ -2,38 +2,86 @@ import "./App.css";
 import { useState } from "react";
 import Axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect /* y demás imports... */ } from "react";
+
+// Más código...
 
 function App() {
   const [Nombre, setNombre] = useState("");
   const [Edad, setEdad] = useState(0);
   const [Pais, setPais] = useState("");
-  const [Cargo, setCargo] = useState("");
+  const [cargo, setcargo] = useState("");
   const [Anio, setAnio] = useState(0);
   const [id, setid] = useState(0);
   const [editar, seteditar] = useState(false);
   const [EmpleadosList, setEmpleados] = useState([]);
 
   const add = async () => {
-    Axios.post("http://localhost:3001/create", {
+    try {
+      // Hacer una solicitud POST con Axios a la URL especificada
+      // Los datos del empleado se envían en el cuerpo de la solicitud.
+      const response = await Axios.post("http://localhost:3001/create", {
+        Nombre: Nombre,
+        Edad: Edad,
+        Pais: Pais,
+        cargo: cargo,
+        Anio: Anio,
+      });
+
+      // Imprimir la respuesta del servidor en la consola.
+      console.log("Respuesta de registro", response);
+
+      // Llamar a la función getEmpleados para obtener la lista actualizada de empleados.
+      await getEmpleados();
+
+      // Limpiar los campos de entrada.
+      clean();
+    } catch (error) {
+      // Si hay algún error con la solicitud, se captura en el bloque catch
+      // Imprimir el detalle error en la consola.
+      console.error("Error al registrar el usuario", error.response);
+    }
+  };
+  const update = () => {
+    // Haces una solicitud HTTP PUT al endpoint "update" en tu servidor.
+    // Los detalles del empleado que deseas actualizar son enviados en el cuerpo de la solicitud.
+    Axios.put("http://localhost:3001/update", {
+      id: id,
       Nombre: Nombre,
       Edad: Edad,
       Pais: Pais,
-      cargo: Cargo,
+      cargo: cargo,
       Anio: Anio,
     })
+      // Una vez que la solicitud PUT ha terminado, .then() maneja la respuesta.
       .then(() => {
+        // Llamas a la función getEmpleados para actualizar la lista de empleados en tu aplicación.
         getEmpleados();
-        alert("Empleado Registrado");
+
+        // Y luego, la función clean borra los valores de los campos de formulario
+        clean();
       })
-      .catch((error) => {
-        console.error("Error en la solicitud:", error);
-      });
+      // Si hay un error en cualquiera de los pasos anteriores,
+      // la promesa es rechazada y el error puede ser manejado por un bloque .catch().
+      .catch((error) =>
+        console.error("Hubo un error al actualizar el empleado", error)
+      );
+  };
+
+  const clean = async () => {
+    setAnio("");
+    setNombre("");
+    setcargo("");
+    setEdad("");
+    setPais("");
+    setid("");
+    seteditar(false);
   };
   const editarempleado = (val) => {
     seteditar(true);
     setNombre(val.Nombre);
     setEdad(val.Edad);
-    setCargo(val.Cargo);
+    setcargo(val.cargo);
     setPais(val.Pais);
     setAnio(val.Anio);
     setid(val.id);
@@ -47,7 +95,9 @@ function App() {
       cont++;
     }
   };
-  getEmpleados();
+  useEffect(() => {
+    getEmpleados();
+  }, []);
 
   return (
     <div className="container">
@@ -107,16 +157,16 @@ function App() {
 
           <div className="input-group mb-3">
             <span className="input-group-text" id="basic-addon1">
-              cargo:
+              Cargo:
             </span>
             <input
               type="text"
-              value={Cargo}
+              value={cargo}
               onChange={(event) => {
-                setCargo(event.target.value);
+                setcargo(event.target.value);
               }}
               className="form-control"
-              placeholder="ingrese un Cargo"
+              placeholder="ingrese un cargo"
               aria-label="Username"
               aria-describedby="basic-addon1"
             />
@@ -140,9 +190,20 @@ function App() {
           </div>
         </div>
         <div className="card-footer text-muted">
-          <button className="btn btn-success" onClick={add}>
-            Registrar
-          </button>
+          {editar ? (
+            <div>
+              <button className="btn btn-warning m-2" onClick={update}>
+                Actualizar
+              </button>
+              <button className="btn btn-info m-2" onClick={clean}>
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-success" onClick={add}>
+              Registrar
+            </button>
+          )}
         </div>
       </div>
       <table className="table table-striped">
@@ -152,15 +213,15 @@ function App() {
             <th scope="col">Nombre</th>
             <th scope="col">Edad</th>
             <th scope="col">Pais</th>
-            <th scope="col">Cargo</th>
+            <th scope="col">cargo</th>
             <th scope="col">Experiencia</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {EmpleadosList.map((val, key) => {
+          {EmpleadosList.map((val) => {
             return (
-              <tr>
+              <tr key={val.id}>
                 <th scope="row">{val.id}</th>
                 <td>{val.Nombre}</td>
                 <td>{val.Edad}</td>
@@ -182,6 +243,14 @@ function App() {
                     >
                       Editar
                     </button>
+                  </div>
+                </td>
+                <td>
+                  <div
+                    className="btn-group"
+                    role="group"
+                    aria-label="Basic example"
+                  >
                     <button type="button" className="btn btn-danger">
                       Eliminar
                     </button>

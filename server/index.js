@@ -16,33 +16,31 @@ app.post("/create", (req, res) => {
   const Nombre = req.body.Nombre;
   const Edad = req.body.Edad;
   const Pais = req.body.Pais;
-  const Cargo = req.body.Cargo;
+  const cargo = req.body.cargo;
   const Anio = req.body.Anio;
 
-  db.query(
-    "INSERT INTO empleados (Nombre, Edad, Pais, Cargo, Anio) VALUES (?, ?, ?, ?, ?)",
-    [Nombre, parseInt(Edad), Pais, Cargo, parseInt(Anio)],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        res.send("Error al registrar el empleado");
-      } else {
-        res.send("Empleado registrado con éxito");
-      }
+  var sqlQuery = "INSERT INTO empleados (Nombre, Edad, Pais, cargo, Anio) VALUES (?, ?, ?, ?, ?)";
+  
+  db.query(sqlQuery, [Nombre, parseInt(Edad), Pais, cargo, parseInt(Anio)], 
+  (err, result) => {
+    if (err) {
+      console.log("Database error: ", err);
+      res.status(500).send(err);
+    } else {
+      console.log("Empleado registrado con éxito");
+      res.status(200).send("Empleado registrado con éxito");
     }
-  );
+  });
 });
-
 app.get("/empleados", (req, res) => {
   db.query(
     "SELECT * FROM empleados",
     (err, result) => {
       if (err) {
-        console.log(err);
-        res.send("Error al registrar el empleado prueba");
+        console.log("Database error: ", err);
+        res.status(500).send(err);
       } else {
-          res.send(result);
-      
+        res.send(result);
       }
     }
   );
@@ -53,11 +51,11 @@ app.put("/update", (req, res) => {
   const Nombre = req.body.Nombre;
   const Edad = req.body.Edad;
   const Pais = req.body.Pais;
-  const Cargo = req.body.Cargo;
+  const cargo = req.body.cargo;
   const Anio = req.body.Anio;
 
-  db.query("UPDATE empleados SET Nombre=?, Edad=?, Pais=?, Cargo=?, Anio=? WHERE id=?",
-    [Nombre, parseInt(Edad), Pais, Cargo, parseInt(Anio), id],
+  db.query("UPDATE empleados SET Nombre=?, Edad=?, Pais=?, cargo=?, Anio=? WHERE id=?",
+    [Nombre, parseInt(Edad), Pais, cargo, parseInt(Anio), id],
     (err, result) => {
       if (err) {
         console.log(err);
